@@ -315,7 +315,7 @@
                     <v-list-item-group>
                         <template v-for="(i, k) in list.my">
                             <div v-show="i.describe.indexOf(searchString) > -1">
-                                <v-list-item :key="k" @click="open(i.url)">
+                                <v-list-item :key="k" @click="!i.editing && open(i.url)">
                                     <template v-if="!i.editing">
                                         <v-list-item-content>
                                             <v-list-item-title v-text="i.describe"></v-list-item-title>
@@ -324,7 +324,7 @@
                                         <v-list-item-action>
                                             <v-tooltip bottom>
                                                 <template v-slot:activator="{ on, attrs }">
-                                                    <v-btn icon @click="i.editing = true" v-bind="attrs" v-on="on">
+                                                    <v-btn icon @click.stop="i.editing = true" v-bind="attrs" v-on="on">
                                                         <v-icon>mdi-pencil-outline</v-icon>
                                                     </v-btn>
                                                 </template>
@@ -332,7 +332,7 @@
                                             </v-tooltip>
                                             <v-tooltip bottom>
                                                 <template v-slot:activator="{ on, attrs }">
-                                                    <v-btn icon @click="deleteDataIndex = k; doDeleteDialog = true" v-bind="attrs" v-on="on">
+                                                    <v-btn icon @click.stop="deleteDataIndex = k; doDeleteDialog = true" v-bind="attrs" v-on="on">
                                                         <v-icon>mdi-delete-outline</v-icon>
                                                     </v-btn>
                                                 </template>
@@ -358,7 +358,7 @@
                                         <v-list-item-action>
                                             <v-tooltip bottom>
                                                 <template v-slot:activator="{ on, attrs }">
-                                                    <v-btn icon @click="send(i)" :disabled="typeof(fieldDescribeRules[0](i.tempDescribe)) != 'boolean' || typeof(fieldUrlRules[0](i.tempUrl)) != 'boolean'" v-bind="attrs" v-on="on">
+                                                    <v-btn icon @click.stop="send(i)" :disabled="typeof(fieldDescribeRules[0](i.tempDescribe)) != 'boolean' || typeof(fieldUrlRules[0](i.tempUrl)) != 'boolean'" v-bind="attrs" v-on="on">
                                                         <v-icon>mdi-content-save-outline</v-icon>
                                                     </v-btn>
                                                 </template>
@@ -366,7 +366,7 @@
                                             </v-tooltip>
                                             <v-tooltip bottom>
                                                 <template v-slot:activator="{ on, attrs }">
-                                                    <v-btn icon @click="i.editing = false" v-bind="attrs" v-on="on">
+                                                    <v-btn icon @click.stop="i.editing = false" v-bind="attrs" v-on="on">
                                                         <v-icon>mdi-close-circle-outline</v-icon>
                                                     </v-btn>
                                                 </template>
@@ -451,7 +451,9 @@
                             關於
                         </v-card-title>
                         <v-card-text>
-                            大濕之音集合 var:{{VERSION}}
+                            大濕之音集合
+                            <br>
+                            var:{{VERSION}}
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
