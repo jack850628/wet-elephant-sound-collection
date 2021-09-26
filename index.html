@@ -201,6 +201,10 @@
 
                         open(url){
                             window.open(url);
+                        },
+
+                        goToWetElephantSound(){
+                            window.open('https://jack850628.github.io/wet-elephant-sound/');
                         }
                     },
                     mounted(){
@@ -216,6 +220,15 @@
             window.onSignIn = function(googleUser){
                 userData = parseJwt(googleUser.credential);
                 userData.token = googleUser.credential;
+                while(vApp.list.my.length > 0){
+                    let i = vApp.list.my.pop();
+                    vApp.list.other.push({
+                        id: i.id,
+                        uniqueID: i.uniqueID,
+                        describe: i.describe,
+                        url: i.url
+                    })
+                }
                 if(vApp.list.other.length > 0){
                     vApp.list = filter(userData.sub, vApp.list.other);
                 }
@@ -247,6 +260,9 @@
                         data-logo_alignment="left">
                     </div>
                 </div>
+                <v-btn dark depressed @click="goToWetElephantSound()">
+                    大濕之音
+                </v-btn>
                 <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
                         <v-btn icon @click="about = true" v-bind="attrs" v-on="on">
