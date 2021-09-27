@@ -99,6 +99,7 @@
                         message: '',
                         doDeleteDialog: false,
                         deleteDataIndex: -1,
+                        openMyGroup: [],
                         
                         searchString: ''
                     },
@@ -274,83 +275,23 @@
             </v-app-bar>
             <v-main>
                 <v-text-field dark v-model="searchString" label="搜尋"></v-text-field>
-                <v-list dark>
-                    <v-subheader v-show="list.my.length > 0">我的組合</v-subheader>
-                    <v-list-item style="background-color: #695602;" v-show="newData.show">
-                        <template>
-                            <v-list-item-content>
-                                <v-text-field
-                                    label="描述"
-                                    v-model="newData.describe"
-                                    :rules="fieldDescribeRules"
-                                    hide-details="auto"
-                                ></v-text-field>
-                                <v-text-field
-                                    label="連結"
-                                    v-model="newData.url"
-                                    :rules="fieldUrlRules"
-                                    hide-details="auto"
-                                ></v-text-field>
-                            </v-list-item-content>
-                            <v-list-item-action>
-                                <v-tooltip bottom>
-                                    <template v-slot:activator="{ on, attrs }">
-                                        <v-btn icon @click="create()" :disabled="typeof(fieldDescribeRules[0](newData.describe)) != 'boolean' || typeof(fieldUrlRules[0](newData.url)) != 'boolean'" v-bind="attrs" v-on="on">
-                                            <v-icon>mdi-content-save-outline</v-icon>
-                                        </v-btn>
-                                    </template>
-                                    <span>儲存</span>
-                                </v-tooltip>
-                                <v-tooltip bottom>
-                                    <template v-slot:activator="{ on, attrs }">
-                                        <v-btn icon @click="newData.show = false" v-bind="attrs" v-on="on">
-                                            <v-icon>mdi-close-circle-outline</v-icon>
-                                        </v-btn>
-                                    </template>
-                                    <span>取消</span>
-                                </v-tooltip>
-                            </v-list-item-action>
-                        </template>
-                    </v-list-item>
-                    <v-list-item-group>
-                        <template v-for="(i, k) in list.my">
-                            <div v-show="i.describe.indexOf(searchString) > -1">
-                                <v-list-item :key="k" @click="!i.editing && open(i.url)">
-                                    <template v-if="!i.editing">
-                                        <v-list-item-content>
-                                            <v-list-item-title v-text="i.describe"></v-list-item-title>
-                                            <v-list-item-subtitle  v-text="'有聲圖'" v-if="i.url.indexOf('soundImage.html') > -1"></v-list-item-subtitle >
-                                        </v-list-item-content>
-                                        <v-list-item-action>
-                                            <v-tooltip bottom>
-                                                <template v-slot:activator="{ on, attrs }">
-                                                    <v-btn icon @click.stop="i.editing = true" v-bind="attrs" v-on="on">
-                                                        <v-icon>mdi-pencil-outline</v-icon>
-                                                    </v-btn>
-                                                </template>
-                                                <span>編輯</span>
-                                            </v-tooltip>
-                                            <v-tooltip bottom>
-                                                <template v-slot:activator="{ on, attrs }">
-                                                    <v-btn icon @click.stop="deleteDataIndex = k; doDeleteDialog = true" v-bind="attrs" v-on="on">
-                                                        <v-icon>mdi-delete-outline</v-icon>
-                                                    </v-btn>
-                                                </template>
-                                                <span>刪除</span>
-                                            </v-tooltip>
-                                        </v-list-item-action>
-                                    </template>
-                                    <template v-else>
+                <v-expansion-panels dark focusable multiple v-model="openMyGroup" v-show="showAddButton">
+                    <v-expansion-panel>
+                        <v-expansion-panel-header>我的組合</v-expansion-panel-header>
+                        <v-expansion-panel-content>
+                            <v-list dark>
+                                <v-list-item style="background-color: #695602;" v-show="newData.show">
+                                    <template>
                                         <v-list-item-content>
                                             <v-text-field
                                                 label="描述"
-                                                v-model="i.tempDescribe"
+                                                v-model="newData.describe"
                                                 :rules="fieldDescribeRules"
                                                 hide-details="auto"
                                             ></v-text-field>
                                             <v-text-field
                                                 label="連結"
-                                                v-model="i.tempUrl"
+                                                v-model="newData.url"
                                                 :rules="fieldUrlRules"
                                                 hide-details="auto"
                                             ></v-text-field>
@@ -358,7 +299,7 @@
                                         <v-list-item-action>
                                             <v-tooltip bottom>
                                                 <template v-slot:activator="{ on, attrs }">
-                                                    <v-btn icon @click.stop="send(i)" :disabled="typeof(fieldDescribeRules[0](i.tempDescribe)) != 'boolean' || typeof(fieldUrlRules[0](i.tempUrl)) != 'boolean'" v-bind="attrs" v-on="on">
+                                                    <v-btn icon @click="create()" :disabled="typeof(fieldDescribeRules[0](newData.describe)) != 'boolean' || typeof(fieldUrlRules[0](newData.url)) != 'boolean'" v-bind="attrs" v-on="on">
                                                         <v-icon>mdi-content-save-outline</v-icon>
                                                     </v-btn>
                                                 </template>
@@ -366,7 +307,7 @@
                                             </v-tooltip>
                                             <v-tooltip bottom>
                                                 <template v-slot:activator="{ on, attrs }">
-                                                    <v-btn icon @click.stop="i.editing = false" v-bind="attrs" v-on="on">
+                                                    <v-btn icon @click="newData.show = false" v-bind="attrs" v-on="on">
                                                         <v-icon>mdi-close-circle-outline</v-icon>
                                                     </v-btn>
                                                 </template>
@@ -375,31 +316,105 @@
                                         </v-list-item-action>
                                     </template>
                                 </v-list-item>
-                                <v-divider></v-divider>
-                            </div>
-                        </template>
-                    </v-list-item-group>
-                    <v-subheader>其他組合</v-subheader>
-                    <v-list-item-group>
-                        <template v-for="(i, k) in list.other">
-                            <div v-show="i.describe.indexOf(searchString) > -1">
-                                <v-list-item :key="k" @click="open(i.url)">
-                                    <template>
-                                        <v-list-item-content>
-                                            <v-list-item-title v-text="i.describe"></v-list-item-title>
-                                            <v-list-item-subtitle  v-text="'有聲圖'" v-if="i.url.indexOf('soundImage.html') > -1"></v-list-item-subtitle >
-                                        </v-list-item-content>
-                                        <v-list-item-action>
-            
-                                        </v-list-item-action>
+                                <v-list-item-group>
+                                    <template v-for="(i, k) in list.my">
+                                        <div v-show="i.describe.indexOf(searchString) > -1">
+                                            <v-list-item :key="k" @click="!i.editing && open(i.url)">
+                                                <template v-if="!i.editing">
+                                                    <v-list-item-content>
+                                                        <v-list-item-title v-text="i.describe"></v-list-item-title>
+                                                        <v-list-item-subtitle  v-text="'有聲圖'" v-if="i.url.indexOf('soundImage.html') > -1"></v-list-item-subtitle >
+                                                    </v-list-item-content>
+                                                    <v-list-item-action>
+                                                        <v-tooltip bottom>
+                                                            <template v-slot:activator="{ on, attrs }">
+                                                                <v-btn icon @click.stop="i.editing = true" v-bind="attrs" v-on="on">
+                                                                    <v-icon>mdi-pencil-outline</v-icon>
+                                                                </v-btn>
+                                                            </template>
+                                                            <span>編輯</span>
+                                                        </v-tooltip>
+                                                        <v-tooltip bottom>
+                                                            <template v-slot:activator="{ on, attrs }">
+                                                                <v-btn icon @click.stop="deleteDataIndex = k; doDeleteDialog = true" v-bind="attrs" v-on="on">
+                                                                    <v-icon>mdi-delete-outline</v-icon>
+                                                                </v-btn>
+                                                            </template>
+                                                            <span>刪除</span>
+                                                        </v-tooltip>
+                                                    </v-list-item-action>
+                                                </template>
+                                                <template v-else>
+                                                    <v-list-item-content>
+                                                        <v-text-field
+                                                            label="描述"
+                                                            v-model="i.tempDescribe"
+                                                            :rules="fieldDescribeRules"
+                                                            hide-details="auto"
+                                                        ></v-text-field>
+                                                        <v-text-field
+                                                            label="連結"
+                                                            v-model="i.tempUrl"
+                                                            :rules="fieldUrlRules"
+                                                            hide-details="auto"
+                                                        ></v-text-field>
+                                                    </v-list-item-content>
+                                                    <v-list-item-action>
+                                                        <v-tooltip bottom>
+                                                            <template v-slot:activator="{ on, attrs }">
+                                                                <v-btn icon @click.stop="send(i)" :disabled="typeof(fieldDescribeRules[0](i.tempDescribe)) != 'boolean' || typeof(fieldUrlRules[0](i.tempUrl)) != 'boolean'" v-bind="attrs" v-on="on">
+                                                                    <v-icon>mdi-content-save-outline</v-icon>
+                                                                </v-btn>
+                                                            </template>
+                                                            <span>儲存</span>
+                                                        </v-tooltip>
+                                                        <v-tooltip bottom>
+                                                            <template v-slot:activator="{ on, attrs }">
+                                                                <v-btn icon @click.stop="i.editing = false" v-bind="attrs" v-on="on">
+                                                                    <v-icon>mdi-close-circle-outline</v-icon>
+                                                                </v-btn>
+                                                            </template>
+                                                            <span>取消</span>
+                                                        </v-tooltip>
+                                                    </v-list-item-action>
+                                                </template>
+                                            </v-list-item>
+                                            <v-divider></v-divider>
+                                        </div>
                                     </template>
-                                </v-list-item>
-                                <v-divider></v-divider>
-                            </div>
-                        </template>
-                    </v-list-item-group>
-                </v-list>
-
+                                </v-list-item-group>
+                            </v-list>
+                        </v-expansion-panel-content>
+                    </v-expansion-panel>
+                </v-expansion-panels>
+                <v-expansion-panels dark focusable>
+                    <v-expansion-panel>
+                        <v-expansion-panel-header>其他組合</v-expansion-panel-header>
+                        <v-expansion-panel-content>
+                            <v-list dark>
+                                <v-list-item-group>
+                                    <template v-for="(i, k) in list.other">
+                                        <div v-show="i.describe.indexOf(searchString) > -1">
+                                            <v-list-item :key="k" @click="open(i.url)">
+                                                <template>
+                                                    <v-list-item-content>
+                                                        <v-list-item-title v-text="i.describe"></v-list-item-title>
+                                                        <v-list-item-subtitle  v-text="'有聲圖'" v-if="i.url.indexOf('soundImage.html') > -1"></v-list-item-subtitle >
+                                                    </v-list-item-content>
+                                                    <v-list-item-action>
+                        
+                                                    </v-list-item-action>
+                                                </template>
+                                            </v-list-item>
+                                            <v-divider></v-divider>
+                                        </div>
+                                    </template>
+                                </v-list-item-group>
+                            </v-list>
+                        </v-expansion-panel-content>
+                    </v-expansion-panel>
+                </v-expansion-panels>
+                
                 <v-dialog v-model="pleaseWaitDialog" max-width="500px" persistent>
                     <v-card>
                         <v-card-title>
@@ -465,7 +480,7 @@
                 </v-dialog>
 
                 <v-fab-transition>
-                    <v-btn dark absolute bottom right fab style="position: fixed; bottom: 20;" @click="newData.show = true; $vuetify.goTo(0)" v-show="showAddButton">
+                    <v-btn dark absolute bottom right fab style="position: fixed; bottom: 20;" @click="openMyGroup = [0]; newData.show = true; $vuetify.goTo(0)" v-show="showAddButton">
                         <v-icon>mdi-plus</v-icon>
                     </v-btn>
                 </v-fab-transition>
