@@ -26,9 +26,12 @@
     <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
+        const SEARCH_PARAMS_1 = 'a', SEARCH_PARAMS_2 = 's'
         const API_URL = 'https://script.google.com/macros/s/AKfycbzh2Ljga5V5yGpS_lyLsCdP5R23OXdHmIUHmsEhi8JVSV4C-_Aw9aqmbs_HLezAjSqWcg/exec';
         (function(){
-            var userData//, vApp;
+            var userData, vApp;
+            var searchParams = new URLSearchParams(location.search);
+
             function parseJwt (token) {
                 var base64Url = token.split('.')[1];
                 var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -61,8 +64,6 @@
                     el: '#app',
                     vuetify: new Vuetify(),
                     data: {
-                        VERSION: '1.0.0927',
-
                         list: {
                             my: [
                                 // {
@@ -74,10 +75,10 @@
                             other:[]
                         },
                         newData: {
-                                    show: false,
-                                    describe: '',
-                                    url: ''
-                                },
+                            show: false,
+                            describe: '',
+                            url: ''
+                        },
                         fieldDescribeRules: [
                             value => !value.match(/^\s*$/) || '不可為空',
                         ],
@@ -101,7 +102,9 @@
                         deleteDataIndex: -1,
                         openMyGroup: [],
                         
-                        searchString: ''
+                        searchString: '',
+
+                        dataGetting: true
                     },
                     watch:{
                     },
@@ -200,6 +203,11 @@
                                 this.message = '刪除失敗';
                             });
                         },
+                        goToCreate(){
+                            this.openMyGroup = [0]; 
+                            this.newData.show = true; 
+                            this.$vuetify.goTo(0);
+                        },
 
                         open(url){
                             window.open(url);
@@ -211,6 +219,7 @@
                     },
                     mounted(){
                         fetch(API_URL).then(response => response.json()).then((data) => {
+                            this.dataGetting = false;
                             if(userData)
                                 this.list = filter(userData.sub, data);
                             else
@@ -218,6 +227,12 @@
                         })
                     }
                 });
+                if(searchParams.get(SEARCH_PARAMS_1)){
+                    vApp.newData.url = atob(searchParams.get(SEARCH_PARAMS_1));
+                }
+                if(searchParams.get(SEARCH_PARAMS_2)){
+                    vApp.newData.describe = unescape(atob(searchParams.get(SEARCH_PARAMS_2)));//btoa不支援中文字編碼，因此先將文字用escape轉成%u開頭的形式後便可編碼。
+                }
             };
             window.onSignIn = function(googleUser){
                 userData = parseJwt(googleUser.credential);
@@ -236,6 +251,9 @@
                     vApp.list = filter(userData.sub, vApp.list.other);
                 }
                 vApp.showAddButton = true;
+                if(searchParams.get(SEARCH_PARAMS_1)){
+                    vApp.goToCreate();
+                }
             }
         })();
     </script>
@@ -386,6 +404,12 @@
                                     </template>
                                 </v-list-item-group>
                             </v-list>
+                            <div style="display: flex; justify-content: center;" v-show="dataGetting">
+                                <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                            </div>
+                            <div style="display: flex; justify-content: center;" v-show="!dataGetting && list.my.length == 0">
+                                沒有資料
+                            </div>
                         </v-expansion-panel-content>
                     </v-expansion-panel>
                 </v-expansion-panels>
@@ -413,6 +437,12 @@
                                     </template>
                                 </v-list-item-group>
                             </v-list>
+                            <div style="display: flex; justify-content: center;" v-show="dataGetting">
+                                <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                            </div>
+                            <div style="display: flex; justify-content: center;" v-show="!dataGetting && list.other.length == 0">
+                                沒有資料
+                            </div>
                         </v-expansion-panel-content>
                     </v-expansion-panel>
                 </v-expansion-panels>
@@ -470,7 +500,7 @@
                         <v-card-text>
                             大濕之音集合
                             <br>
-                            var:{{VERSION}}
+                            v1.1.0928
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
@@ -482,7 +512,7 @@
                 </v-dialog>
 
                 <v-fab-transition>
-                    <v-btn dark absolute bottom right fab style="position: fixed; bottom: 20;" @click="openMyGroup = [0]; newData.show = true; $vuetify.goTo(0)" v-show="showAddButton">
+                    <v-btn dark absolute bottom right fab style="position: fixed; bottom: 20;" @click="goToCreate()" v-show="showAddButton">
                         <v-icon>mdi-plus</v-icon>
                     </v-btn>
                 </v-fab-transition>
