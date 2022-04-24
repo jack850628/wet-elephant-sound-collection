@@ -231,7 +231,7 @@
                     vApp.newData.url = atob(searchParams.get(SEARCH_PARAMS_1));
                 }
                 if(searchParams.get(SEARCH_PARAMS_2)){
-                    vApp.newData.describe = unescape(atob(searchParams.get(SEARCH_PARAMS_2)));//btoa不支援中文字編碼，因此先將文字用escape轉成%u開頭的形式後便可編碼。
+                    vApp.newData.describe = decodeURIComponent(atob(searchParams.get(SEARCH_PARAMS_2)));//btoa不支援中文字編碼，因此先將文字用encodeURIComponent轉成%u開頭的形式後便可編碼。
                 }
             };
             window.onSignIn = function(googleUser){
@@ -517,7 +517,7 @@
                     </v-btn>
                 </v-fab-transition>
             </v-main>
-          
+        
             <!-- <v-footer app>
             </v-footer> -->
         </v-app>
