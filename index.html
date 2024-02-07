@@ -20,6 +20,11 @@
             background-color: #272727;
             color: #FFFFFF;
         }
+        .flex-center{
+            display: flex; 
+            justify-content: center;
+
+        }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
@@ -404,10 +409,10 @@
                                     </template>
                                 </v-list-item-group>
                             </v-list>
-                            <div style="display: flex; justify-content: center;" v-show="dataGetting">
+                            <div class="flex-center" v-show="dataGetting">
                                 <v-progress-circular indeterminate color="primary"></v-progress-circular>
                             </div>
-                            <div style="display: flex; justify-content: center;" v-show="!dataGetting && list.my.length == 0">
+                            <div class="flex-center" v-show="!dataGetting && list.my.length == 0">
                                 沒有資料
                             </div>
                         </v-expansion-panel-content>
@@ -437,10 +442,10 @@
                                     </template>
                                 </v-list-item-group>
                             </v-list>
-                            <div style="display: flex; justify-content: center;" v-show="dataGetting">
+                            <div class="flex-center" v-show="dataGetting">
                                 <v-progress-circular indeterminate color="primary"></v-progress-circular>
                             </div>
-                            <div style="display: flex; justify-content: center;" v-show="!dataGetting && list.other.length == 0">
+                            <div class="flex-center" v-show="!dataGetting && list.other.length == 0">
                                 沒有資料
                             </div>
                         </v-expansion-panel-content>
@@ -500,7 +505,7 @@
                         <v-card-text>
                             大濕之音集合
                             <br>
-                            v1.1.0424
+                            v1.1.240207
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
